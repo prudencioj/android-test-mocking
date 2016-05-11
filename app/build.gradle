@@ -1,0 +1,74 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "com.github.prudencioj.mockingtest"
+        minSdkVersion 18
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testBuildType "uitesting"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField("boolean", "UI_TESTING", "false")
+        }
+
+        debug {
+            debuggable = true
+            buildConfigField("boolean", "UI_TESTING", "false")
+        }
+
+        // Uitesting will be used to run ui tests.
+        uitesting.initWith(buildTypes.debug)
+        uitesting {
+            minifyEnabled false
+            debuggable = true
+            buildConfigField("boolean", "UI_TESTING", "true")
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:design:23.3.0'
+
+    compile 'com.squareup.retrofit2:retrofit:2.0.2'
+
+    // UI Testing
+    androidTestCompile ('com.android.support.test:runner:0.4.1') {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
+    androidTestCompile 'org.hamcrest:hamcrest-library:1.4-atlassian-1'
+
+    //WireMock
+    androidTestCompile("com.github.tomakehurst:wiremock:2.0.10-beta") {
+        //Allows us to use the Android version of Apache httpclient instead
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+
+        //Resolves the Duplicate Class Exception
+        //Error:Execution failed for task ':app:transformClassesWithJarMergingForDebugAndroidTest'.
+        //       > com.android.build.api.transform.TransformException: java.util.zip.ZipException: duplicate entry: org/objectweb/asm/AnnotationVisitor.class
+        exclude group: 'asm', module: 'asm'
+
+        //Fixes conflict with Android's version
+        //Warning:Dependency org.json:json:20090211 is ignored for debugAndroidTest as it may be conflicting with the internal version provided by Android.
+        //In case of problem, please repackage with jarjar to change the class packages
+        exclude group: 'org.json', module: 'json'
+
+        //exclude group: 'com.google.guava', module: 'guava'
+    }
+    androidTestCompile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'junit:junit:4.12'
+}
